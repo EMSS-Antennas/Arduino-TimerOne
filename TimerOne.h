@@ -198,27 +198,35 @@ class TimerOne
 	const unsigned long cycles = ((F_CPU/100000 * microseconds) / 20);
 	if (cycles < TIMER1_RESOLUTION) {
 		clockSelectBits = _BV(CS10);
+    prescaler = 1;
 		pwmPeriod = cycles;
 	} else
 	if (cycles < TIMER1_RESOLUTION * 8) {
 		clockSelectBits = _BV(CS11);
-		pwmPeriod = cycles / 8;
+    prescaler = 8;
+		pwmPeriod = cycles / prescaler;
 	} else
 	if (cycles < TIMER1_RESOLUTION * 64) {
 		clockSelectBits = _BV(CS11) | _BV(CS10);
-		pwmPeriod = cycles / 64;
+    prescaler = 64;
+		pwmPeriod = cycles / prescaler;
 	} else
 	if (cycles < TIMER1_RESOLUTION * 256) {
 		clockSelectBits = _BV(CS12);
-		pwmPeriod = cycles / 256;
+    prescaler = 256;
+		pwmPeriod = cycles / prescaler;
 	} else
 	if (cycles < TIMER1_RESOLUTION * 1024) {
 		clockSelectBits = _BV(CS12) | _BV(CS10);
-		pwmPeriod = cycles / 1024;
+    prescaler = 1024;
+		pwmPeriod = cycles / prescaler;
+
 	} else {
 		clockSelectBits = _BV(CS12) | _BV(CS10);
+    prescaler = 1024;
 		pwmPeriod = TIMER1_RESOLUTION - 1;
 	}
+
 	ICR1 = pwmPeriod;
 	TCCR1B = _BV(WGM13) | clockSelectBits;
     }
@@ -305,6 +313,7 @@ class TimerOne
     // properties
     static unsigned short pwmPeriod;
     static unsigned char clockSelectBits;
+    static unsigned short prescaler;
 
 
 
