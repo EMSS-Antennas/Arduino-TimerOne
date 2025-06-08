@@ -23,6 +23,7 @@ TimerOne Timer1;              // preinstantiate
 #if !defined(ESP32)
 unsigned short TimerOne::pwmPeriod = 0;
 unsigned char TimerOne::clockSelectBits = 0;
+unsigned short TimerOne::prescaler = 1;
 void (*TimerOne::isrCallback)() = TimerOne::isrDefaultUnused;
 void TimerOne::isrDefaultUnused() { /* noop */; }
 #endif // not ESP32

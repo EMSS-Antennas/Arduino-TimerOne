@@ -195,7 +195,7 @@ class TimerOne
 	setPeriod(microseconds);
     }
     void setPeriod(unsigned long microseconds) __attribute__((always_inline)) {
-	const unsigned long cycles = ((F_CPU/100000 * microseconds) / 20);
+	const unsigned long cycles = ((F_CPU/1000000 * microseconds) / 2);
 	if (cycles < TIMER1_RESOLUTION) {
 		clockSelectBits = _BV(CS10);
     prescaler = 1;
@@ -236,9 +236,9 @@ class TimerOne
     //****************************
     void start() __attribute__((always_inline)) {
 	TCCR1B = 0;
-	noInterrupts();
-	TCNT1 = 0;		// This Causes an interupt.
-	interrupts();
+	//noInterrupts();
+	TCNT1 = 1;		// This Causes an interupt.
+	//interrupts();
 	resume();
     }
     void stop() __attribute__((always_inline)) {
@@ -250,6 +250,19 @@ class TimerOne
     void resume() __attribute__((always_inline)) {
 	TCCR1B = _BV(WGM13) | clockSelectBits;
     }
+  inline unsigned long elapsed() __attribute__((always_inline)) {
+    unsigned long t0 = TCNT1;
+    unsigned long time = 0;
+    delayMicroseconds(200);
+    time = TCNT1;
+    if ((int)((int)time-(int)t0)>0) //upcount
+    {
+      time = t0*(prescaler/(F_CPU/1000000UL));
+    }else{ //downcount
+      time = (2*pwmPeriod-t0)*(prescaler/(F_CPU/1000000UL));
+    }
+    return time;
+  }
 
     //****************************
     //  PWM outputs
