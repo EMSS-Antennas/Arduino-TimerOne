@@ -228,7 +228,9 @@ class TimerOne
     //****************************
     void start() __attribute__((always_inline)) {
 	TCCR1B = 0;
-	TCNT1 = 0;		// TODO: does this cause an undesired interrupt?
+	noInterrupts();
+	TCNT1 = 0;		// This Causes an interupt.
+	interrupts();
 	resume();
     }
     void stop() __attribute__((always_inline)) {
