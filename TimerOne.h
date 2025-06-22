@@ -215,6 +215,8 @@ class TimerOne
 		clockSelectBits = _BV(CS12);
     prescaler = 256;
 		pwmPeriod = cycles / prescaler;
+    Serial.println("H3");
+    Serial.println(2*((unsigned long)pwmPeriod));
 	} else
 	if (cycles < TIMER1_RESOLUTION * 1024) {
 		clockSelectBits = _BV(CS12) | _BV(CS10);
@@ -226,7 +228,8 @@ class TimerOne
     prescaler = 1024;
 		pwmPeriod = TIMER1_RESOLUTION - 1;
 	}
-
+  totalTime = 2*((unsigned long)(pwmPeriod));
+  timeInterval = ((unsigned long)prescaler/(F_CPU/1000000UL));
 	ICR1 = pwmPeriod;
 	TCCR1B = _BV(WGM13) | clockSelectBits;
     }
@@ -252,16 +255,13 @@ class TimerOne
     }
   inline unsigned long elapsed() __attribute__((always_inline)) {
     unsigned long t0 = TCNT1;
-    unsigned long time = 0;
-    delayMicroseconds(200);
-    time = TCNT1;
-    if ((int)((int)time-(int)t0)>0) //upcount
+    if (TIFR1 & _BV(ICF1)) //downcount
     {
-      time = t0*(prescaler/(F_CPU/1000000UL));
-    }else{ //downcount
-      time = (2*pwmPeriod-t0)*(prescaler/(F_CPU/1000000UL));
+      t0 = (totalTime-t0)*timeInterval;
+    }else{ //upcount
+       t0 = t0*timeInterval;   
     }
-    return time;
+    return t0;
   }
 
     //****************************
@@ -327,6 +327,8 @@ class TimerOne
     static unsigned short pwmPeriod;
     static unsigned char clockSelectBits;
     static unsigned short prescaler;
+    static unsigned long totalTime;
+     static unsigned long timeInterval;
 
 
 
